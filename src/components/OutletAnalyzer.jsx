@@ -3,165 +3,101 @@ import { Upload } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
 const OutletAnalyzer = () => {
-  const [outletData, setOutletData] = useState(null);
-  const [error, setError] = useState('');
-  const [eventDetails, setEventDetails] = useState(null);
-
-  const processExcelFile = async (file) => {
-    try {
-      const data = await file.arrayBuffer();
-      const workbook = XLSX.read(data, {
-        cellStyles: true,
-        cellFormulas: true,
-        cellDates: true,
-        cellNF: true,
-        sheetStubs: true
-      });
-
-      const eventInfo = {};
-      const outletsBySection = {};
-
-      // Process each sheet (excluding Lookup Table)
-      workbook.SheetNames.forEach(sheetName => {
-        if (sheetName === 'Lookup Table') return;
-
-        const worksheet = workbook.Sheets[sheetName];
-        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
-
-        // Get event details from first row if not already captured
-        if (!eventInfo.title && jsonData[0] && jsonData[0][0]) {
-          eventInfo.title = jsonData[0][0];
-          eventInfo.corporateDining = jsonData[1]?.[0];
-          eventInfo.corporateSuites = jsonData[2]?.[0];
-          eventInfo.totalAttendance = jsonData[3]?.[8];
-        }
-
-        const outlets = [];
-        // Start processing from row 5 (where outlet data begins)
-        for (let i = 5; i < jsonData.length; i++) {
-          const row = jsonData[i];
-          if (row && row[0] && row[0] !== 'OUTLET NAME') {
-            outlets.push({
-              name: row[0],
-              location: row[1],
-              bmsOn: row[2],
-              openTime: row[3],
-              closeTime: row[4],
-              bmsOff: row[5],
-              extendedTrading: row[6],
-              staffCount: row[7],
-              client: row[8],
-              comments: row[9],
-              guestCount: row[10],
-              isOpen: row[3] && row[3].toString().toLowerCase() !== 'closed'
-            });
-          }
-        }
-
-        if (outlets.length > 0) {
-          outletsBySection[sheetName] = outlets.filter(outlet => outlet.isOpen);
-        }
-      });
-
-      setEventDetails(eventInfo);
-      setOutletData(outletsBySection);
-      setError('');
-    } catch (err) {
-      setError('Error processing file: ' + err.message);
-      setOutletData(null);
-      setEventDetails(null);
-    }
-  };
-
-  const handleFileUpload = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      processExcelFile(file);
-    }
-  };
+  // ... keep existing state and processExcelFile function ...
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-center mb-4">F&B Outlet Status Analyzer</h1>
-      </div>
-
-      <div className="space-y-6">
-        {/* File Upload Section */}
-        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-          <input
-            type="file"
-            onChange={handleFileUpload}
-            accept=".xlsx,.xls"
-            className="hidden"
-            id="file-upload"
-          />
-          <label
-            htmlFor="file-upload"
-            className="cursor-pointer flex flex-col items-center space-y-2"
-          >
-            <Upload className="h-12 w-12 text-gray-400" />
-            <span className="text-sm text-gray-600">
-              Click to upload F&B outlet spreadsheet
-            </span>
-            <span className="text-xs text-gray-400">
-              Supports Excel files (.xlsx, .xls)
-            </span>
-          </label>
+    <div className="min-h-screen bg-slate-100 p-8">
+      <div className="max-w-[1200px] mx-auto bg-white rounded-lg shadow-lg">
+        {/* Header */}
+        <div className="bg-blue-600 p-6 rounded-t-lg">
+          <h1 className="text-3xl font-bold text-white text-center">F&B Outlet Status Analyzer</h1>
         </div>
 
-        {/* Error Display */}
-        {error && (
-          <div className="text-red-500 text-sm p-2 bg-red-50 rounded">
-            {error}
+        {/* Main Content */}
+        <div className="p-8">
+          {/* Upload Section */}
+          <div className="mb-8 border-2 border-dashed border-blue-300 rounded-lg p-6 bg-white hover:border-blue-500 transition-colors cursor-pointer">
+            <input
+              type="file"
+              onChange={handleFileUpload}
+              accept=".xlsx,.xls"
+              className="hidden"
+              id="file-upload"
+            />
+            <label
+              htmlFor="file-upload"
+              className="flex flex-col items-center space-y-2 cursor-pointer"
+            >
+              <Upload className="w-12 h-12 text-blue-500" />
+              <span className="text-lg font-medium text-gray-700">Click to upload F&B outlet spreadsheet</span>
+              <span className="text-sm text-gray-500">Supports Excel files (.xlsx, .xls)</span>
+            </label>
           </div>
-        )}
 
-        {/* Event Details */}
-        {eventDetails && (
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <h3 className="font-semibold text-lg mb-2">{eventDetails.title}</h3>
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>{eventDetails.corporateDining}</div>
-              <div>{eventDetails.corporateSuites}</div>
-              <div className="col-span-2">{eventDetails.totalAttendance}</div>
+          {/* Error Display */}
+          {error && (
+            <div className="mb-8 p-4 bg-red-50 border-l-4 border-red-500 text-red-700">
+              {error}
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Results Display */}
-        {outletData && Object.keys(outletData).map(section => (
-          outletData[section].length > 0 ? (
-            <div key={section} className="space-y-4">
-              <h3 className="text-xl font-bold text-center py-4 bg-gray-100 rounded-lg mb-4 text-gray-800">
-                {section}
-              </h3>
-              <div className="grid gap-2">
-                {outletData[section].map((outlet, index) => (
-                  <div
-                    key={index}
-                    className="p-3 rounded-lg flex flex-col sm:flex-row sm:items-center justify-between bg-green-50"
-                  >
-                    <div className="space-y-1">
-                      <div className="font-medium">{outlet.name}</div>
-                      <div className="text-sm text-gray-600">{outlet.location}</div>
-                    </div>
-                    <div className="flex flex-col sm:items-end space-y-1">
-                      <span className="text-sm font-medium text-green-600">
-                        {outlet.openTime} - {outlet.closeTime}
-                      </span>
-                      {outlet.staffCount && (
-                        <span className="text-xs text-gray-500">
-                          Staff: {outlet.staffCount}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                ))}
+          {/* Event Details */}
+          {eventDetails && (
+            <div className="mb-8 bg-gray-50 p-6 rounded-lg border border-gray-200">
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">{eventDetails.title}</h2>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="bg-white p-4 rounded shadow-sm">
+                  <div className="text-sm text-gray-500">Corporate Dining</div>
+                  <div className="font-semibold">{eventDetails.corporateDining}</div>
+                </div>
+                <div className="bg-white p-4 rounded shadow-sm">
+                  <div className="text-sm text-gray-500">Corporate Suites</div>
+                  <div className="font-semibold">{eventDetails.corporateSuites}</div>
+                </div>
+                <div className="bg-white p-4 rounded shadow-sm">
+                  <div className="text-sm text-gray-500">Total Attendance</div>
+                  <div className="font-semibold">{eventDetails.totalAttendance}</div>
+                </div>
               </div>
             </div>
-          ) : null
-        ))}
+          )}
+
+          {/* Outlets Display */}
+          {outletData && Object.keys(outletData).map(section => (
+            outletData[section].length > 0 ? (
+              <div key={section} className="mb-8">
+                <h2 className="text-2xl font-bold bg-gray-800 text-white py-3 px-6 rounded-t-lg">
+                  {section}
+                </h2>
+                <div className="bg-white border border-gray-200 rounded-b-lg">
+                  {outletData[section].map((outlet, index) => (
+                    <div 
+                      key={index}
+                      className={`p-4 flex justify-between items-center border-b border-gray-100 hover:bg-blue-50 ${
+                        index === outletData[section].length - 1 ? 'border-b-0' : ''
+                      }`}
+                    >
+                      <div>
+                        <div className="font-semibold text-lg text-gray-800">{outlet.name}</div>
+                        <div className="text-gray-600">{outlet.location}</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-blue-600 font-medium">
+                          {outlet.openTime} - {outlet.closeTime}
+                        </div>
+                        {outlet.staffCount && (
+                          <div className="text-sm text-gray-500">
+                            Staff: {outlet.staffCount}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null
+          ))}
+        </div>
       </div>
     </div>
   );
