@@ -28,19 +28,16 @@ const OutletAnalyzer = () => {
         const outlets = [];
         for (let i = 5; i < jsonData.length; i++) {
           const row = jsonData[i];
-          // Only add the outlet if it has a name and is not closed
           if (row && row[0] && row[0] !== 'OUTLET NAME' && row[3] && row[3].toString().toLowerCase() !== 'closed') {
             outlets.push({
               name: row[0],
               location: row[1],
               openTime: row[3],
-              closeTime: row[4],
-              staffCount: row[7]
+              closeTime: row[4]
             });
           }
         }
 
-        // Only add the section if it has open outlets
         if (outlets.length > 0) {
           outletsBySection[sheetName] = outlets;
         }
@@ -81,8 +78,7 @@ const OutletAnalyzer = () => {
           {outletData[section].map((outlet, index) => (
             <div key={index}>
               <p>{outlet.name} - {outlet.location}</p>
-              <p>Open: {outlet.openTime} - {outlet.closeTime}</p>
-              <p>Staff: {outlet.staffCount}</p>
+              <p>{outlet.openTime} - {outlet.closeTime}</p>
             </div>
           ))}
         </div>
