@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Upload } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
@@ -82,90 +81,89 @@ const OutletAnalyzer = () => {
   };
 
   return (
-    <Card className="w-full max-w-4xl mx-auto">
-      <CardHeader>
-        <CardTitle>F&B Outlet Status Analyzer</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-6">
-          {/* File Upload Section */}
-          <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-            <input
-              type="file"
-              onChange={handleFileUpload}
-              accept=".xlsx,.xls"
-              className="hidden"
-              id="file-upload"
-            />
-            <label
-              htmlFor="file-upload"
-              className="cursor-pointer flex flex-col items-center space-y-2"
-            >
-              <Upload className="h-12 w-12 text-gray-400" />
-              <span className="text-sm text-gray-600">
-                Click to upload F&B outlet spreadsheet
-              </span>
-              <span className="text-xs text-gray-400">
-                Supports Excel files (.xlsx, .xls)
-              </span>
-            </label>
-          </div>
+    <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-center mb-4">F&B Outlet Status Analyzer</h1>
+      </div>
 
-          {/* Error Display */}
-          {error && (
-            <div className="text-red-500 text-sm p-2 bg-red-50 rounded">
-              {error}
-            </div>
-          )}
-
-          {/* Event Details */}
-          {eventDetails && (
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h3 className="font-semibold text-lg mb-2">{eventDetails.title}</h3>
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>{eventDetails.corporateDining}</div>
-                <div>{eventDetails.corporateSuites}</div>
-                <div className="col-span-2">{eventDetails.totalAttendance}</div>
-              </div>
-            </div>
-          )}
-
-          {/* Results Display */}
-          {outletData && Object.keys(outletData).map(section => (
-            outletData[section].length > 0 ? (
-              <div key={section} className="space-y-4">
-                <h3 className="text-xl font-bold text-center py-4 bg-gray-100 rounded-lg mb-4 text-gray-800">
-                  {section}
-                </h3>
-                <div className="grid gap-2">
-                  {outletData[section].map((outlet, index) => (
-                    <div
-                      key={index}
-                      className="p-3 rounded-lg flex flex-col sm:flex-row sm:items-center justify-between bg-green-50"
-                    >
-                      <div className="space-y-1">
-                        <div className="font-medium">{outlet.name}</div>
-                        <div className="text-sm text-gray-600">{outlet.location}</div>
-                      </div>
-                      <div className="flex flex-col sm:items-end space-y-1">
-                        <span className="text-sm font-medium text-green-600">
-                          {outlet.openTime} - {outlet.closeTime}
-                        </span>
-                        {outlet.staffCount && (
-                          <span className="text-xs text-gray-500">
-                            Staff: {outlet.staffCount}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ) : null
-          ))}
+      <div className="space-y-6">
+        {/* File Upload Section */}
+        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+          <input
+            type="file"
+            onChange={handleFileUpload}
+            accept=".xlsx,.xls"
+            className="hidden"
+            id="file-upload"
+          />
+          <label
+            htmlFor="file-upload"
+            className="cursor-pointer flex flex-col items-center space-y-2"
+          >
+            <Upload className="h-12 w-12 text-gray-400" />
+            <span className="text-sm text-gray-600">
+              Click to upload F&B outlet spreadsheet
+            </span>
+            <span className="text-xs text-gray-400">
+              Supports Excel files (.xlsx, .xls)
+            </span>
+          </label>
         </div>
-      </CardContent>
-    </Card>
+
+        {/* Error Display */}
+        {error && (
+          <div className="text-red-500 text-sm p-2 bg-red-50 rounded">
+            {error}
+          </div>
+        )}
+
+        {/* Event Details */}
+        {eventDetails && (
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <h3 className="font-semibold text-lg mb-2">{eventDetails.title}</h3>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>{eventDetails.corporateDining}</div>
+              <div>{eventDetails.corporateSuites}</div>
+              <div className="col-span-2">{eventDetails.totalAttendance}</div>
+            </div>
+          </div>
+        )}
+
+        {/* Results Display */}
+        {outletData && Object.keys(outletData).map(section => (
+          outletData[section].length > 0 ? (
+            <div key={section} className="space-y-4">
+              <h3 className="text-xl font-bold text-center py-4 bg-gray-100 rounded-lg mb-4 text-gray-800">
+                {section}
+              </h3>
+              <div className="grid gap-2">
+                {outletData[section].map((outlet, index) => (
+                  <div
+                    key={index}
+                    className="p-3 rounded-lg flex flex-col sm:flex-row sm:items-center justify-between bg-green-50"
+                  >
+                    <div className="space-y-1">
+                      <div className="font-medium">{outlet.name}</div>
+                      <div className="text-sm text-gray-600">{outlet.location}</div>
+                    </div>
+                    <div className="flex flex-col sm:items-end space-y-1">
+                      <span className="text-sm font-medium text-green-600">
+                        {outlet.openTime} - {outlet.closeTime}
+                      </span>
+                      {outlet.staffCount && (
+                        <span className="text-xs text-gray-500">
+                          Staff: {outlet.staffCount}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null
+        ))}
+      </div>
+    </div>
   );
 };
 
