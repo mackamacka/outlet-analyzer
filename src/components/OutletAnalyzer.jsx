@@ -31,9 +31,7 @@ const OutletAnalyzer = () => {
           if (row && row[0] && row[0] !== 'OUTLET NAME' && row[3] && row[3].toString().toLowerCase() !== 'closed') {
             outlets.push({
               name: row[0],
-              location: row[1],
-              openTime: row[3],
-              closeTime: row[4]
+              location: row[1]
             });
           }
         }
@@ -78,7 +76,6 @@ const OutletAnalyzer = () => {
           {outletData[section].map((outlet, index) => (
             <div key={index}>
               <p>{outlet.name} - {outlet.location}</p>
-              <p>{outlet.openTime} - {outlet.closeTime}</p>
             </div>
           ))}
         </div>
