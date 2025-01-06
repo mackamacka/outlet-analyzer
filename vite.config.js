@@ -5,6 +5,14 @@ import path from 'path'
 export default defineConfig({
   plugins: [react()],
   base: '/outlet-analyzer/',
+  build: {
+    outDir: 'dist',
+    rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, 'index.html'),
+      },
+    },
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
