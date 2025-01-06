@@ -3,69 +3,91 @@ import { Upload } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
 const OutletAnalyzer = () => {
-  // ... keep all the existing state and functions ...
+  const [outletData, setOutletData] = useState(null);
+  const [error, setError] = useState('');
+  const [eventDetails, setEventDetails] = useState(null);
+
+  const processExcelFile = async (file) => {
+    try {
+      const data = await file.arrayBuffer();
+      const workbook = XLSX.read(data, {
+        cellStyles: true,
+        cellFormulas: true,
+        cellDates: true,
+        cellNF: true,
+        sheetStubs: true
+      });
+
+      const eventInfo = {};
+      const outletsBySection = {};
+
+      // Process each sheet (excluding Lookup Table)
+      workbook.SheetNames.forEach(sheetName => {
+        if (sheetName === 'Lookup Table') return;
+
+        const worksheet = workbook.Sheets[sheetName];
+        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
+
+        const outlets = [];
+        // Start processing from row 5 (where outlet data begins)
+        for (let i = 5; i < jsonData.length; i++) {
+          const row = jsonData[i];
+          if (row && row[0] && row[0] !== 'OUTLET NAME') {
+            outlets.push({
+              name: row[0],
+              location: row[1],
+              openTime: row[3],
+              closeTime: row[4],
+              staffCount: row[7],
+              isOpen: row[3] && row[3].toString().toLowerCase() !== 'closed'
+            });
+          }
+        }
+
+        if (outlets.length > 0) {
+          outletsBySection[sheetName] = outlets;
+        }
+      });
+
+      setOutletData(outletsBySection);
+      setError('');
+    } catch (err) {
+      setError('Error processing file: ' + err.message);
+      setOutletData(null);
+    }
+  };
+
+  const handleFileUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      processExcelFile(file);
+    }
+  };
 
   return (
-    <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
-      <h1 style={{ 
-        fontSize: '24px', 
-        fontWeight: 'bold', 
-        marginBottom: '20px' 
-      }}>F&B Outlet Status Analyzer</h1>
+    <div>
+      <h1>F&B Outlet Status Analyzer</h1>
       
-      {/* File Upload Section */}
-      <div style={{ 
-        marginBottom: '20px',
-        padding: '20px',
-        border: '2px dashed #ccc',
-        borderRadius: '8px',
-        textAlign: 'center'
-      }}>
-        <input
-          type="file"
-          onChange={handleFileUpload}
-          accept=".xlsx,.xls"
-          style={{ marginBottom: '10px' }}
-        />
-      </div>
+      <input
+        type="file"
+        onChange={handleFileUpload}
+        accept=".xlsx,.xls"
+      />
 
-      {/* Error Display */}
       {error && (
-        <div style={{
-          color: 'red',
-          padding: '10px',
-          marginBottom: '20px',
-          backgroundColor: '#fee',
-          borderRadius: '4px'
-        }}>{error}</div>
+        <div style={{color: 'red'}}>{error}</div>
       )}
 
-      {/* Results Display */}
       {outletData && Object.keys(outletData).map(section => (
-        <div key={section} style={{ marginBottom: '30px' }}>
-          <h2 style={{ 
-            fontSize: '20px', 
-            fontWeight: 'bold',
-            backgroundColor: '#f0f0f0',
-            padding: '10px',
-            borderRadius: '4px'
-          }}>{section}</h2>
-          
-          <div style={{ display: 'grid', gap: '10px', padding: '10px' }}>
-            {outletData[section].map((outlet, index) => (
-              <div key={index} style={{
-                padding: '15px',
-                border: '1px solid #ddd',
-                borderRadius: '4px',
-                backgroundColor: 'white'
-              }}>
-                <div style={{ fontWeight: 'bold' }}>{outlet.name}</div>
-                <div style={{ color: '#666' }}>{outlet.location}</div>
-                <div>Open: {outlet.openTime} - {outlet.closeTime}</div>
-                <div>Staff: {outlet.staffCount}</div>
-              </div>
-            ))}
-          </div>
+        <div key={section}>
+          <h2>{section}</h2>
+          {outletData[section].map((outlet, index) => (
+            <div key={index}>
+              <p>{outlet.name} - {outlet.location}</p>
+              <p>Open: {outlet.openTime} - {outlet.closeTime}</p>
+              <p>Staff: {outlet.staffCount}</p>
+            </div>
+          ))}
         </div>
       ))}
     </div>
