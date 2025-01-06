@@ -65,25 +65,41 @@ const OutletAnalyzer = () => {
   };
 
   return (
-    <div>
-      <h1>F&B Outlet Status Analyzer</h1>
+    <div style={{ padding: '20px' }}>
+      <h1 style={{ 
+        fontSize: '24px', 
+        marginBottom: '20px' 
+      }}>F&B Outlet Status Analyzer</h1>
       
       <input
         type="file"
         onChange={handleFileUpload}
         accept=".xlsx,.xls"
+        style={{ marginBottom: '20px' }}
       />
 
       {error && (
-        <div style={{color: 'red'}}>{error}</div>
+        <div style={{
+          color: 'red',
+          marginBottom: '20px'
+        }}>{error}</div>
       )}
 
       {outletData && Object.keys(outletData).map(section => (
-        <div key={section}>
-          <h2>{section}</h2>
+        <div key={section} style={{ marginBottom: '30px' }}>
+          <h2 style={{ 
+            backgroundColor: '#eee',
+            padding: '10px',
+            marginBottom: '15px'
+          }}>{section}</h2>
+          
           {outletData[section].map((outlet, index) => (
-            <div key={index}>
-              <p>{outlet.name} - {outlet.location}</p>
+            <div key={index} style={{ 
+              padding: '10px',
+              marginBottom: '10px',
+              borderBottom: '1px solid #ddd'
+            }}>
+              <p style={{ fontWeight: 'bold' }}>{outlet.name} - {outlet.location}</p>
               <p>Open: {outlet.openTime} - {outlet.closeTime}</p>
               <p>Staff: {outlet.staffCount}</p>
             </div>
