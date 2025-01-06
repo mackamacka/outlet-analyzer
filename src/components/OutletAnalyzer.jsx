@@ -57,7 +57,7 @@ const OutletAnalyzer = () => {
   };
 
   return (
-    <div>
+    <div style={{ padding: '20px', maxWidth: '1920px', margin: '0 auto' }}>
       <h1>F&B Outlet Status Analyzer</h1>
       
       <input
@@ -71,13 +71,28 @@ const OutletAnalyzer = () => {
       )}
 
       {outletData && Object.keys(outletData).map(section => (
-        <div key={section}>
-          <h2>{section}</h2>
-          {outletData[section].map((outlet, index) => (
-            <div key={index}>
-              <p>{outlet.name} - {outlet.location}</p>
-            </div>
-          ))}
+        <div key={section} style={{ marginBottom: '20px' }}>
+          <h2 style={{ 
+            backgroundColor: '#f0f0f0', 
+            padding: '10px',
+            marginBottom: '10px' 
+          }}>{section}</h2>
+          <div style={{ 
+            display: 'grid',
+            gridTemplateColumns: 'repeat(5, 1fr)',
+            gap: '10px',
+            alignItems: 'start'
+          }}>
+            {outletData[section].map((outlet, index) => (
+              <div key={index} style={{
+                padding: '10px',
+                border: '1px solid #ddd',
+                borderRadius: '4px'
+              }}>
+                <p style={{ margin: 0 }}>{outlet.name} - {outlet.location}</p>
+              </div>
+            ))}
+          </div>
         </div>
       ))}
     </div>
