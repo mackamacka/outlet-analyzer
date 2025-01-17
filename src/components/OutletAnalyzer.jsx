@@ -35,15 +35,14 @@ const OutletAnalyzer = () => {
         const outlets = [];
         for (let i = 5; i < jsonData.length; i++) {
           const row = jsonData[i];
-          // Check if outlet is open AND not in the excluded list
+          // Check if outlet exists and BMS ON time is not 0:00:00
           if (row && row[0] && 
               row[0] !== 'OUTLET NAME' && 
-              row[3] && 
-              row[3].toString().toLowerCase() !== 'closed' &&
+              row[2] && // BMS ON time
+              row[2] !== '0:00:00' &&
               !excludedOutlets.some(excluded => row[0].includes(excluded))) {
             outlets.push({
-              name: row[0],
-              location: row[1]
+              name: row[0]
             });
           }
         }
@@ -101,7 +100,7 @@ const OutletAnalyzer = () => {
             <h2>{section}</h2>
             {outletData[section].map((outlet, idx) => (
               <div key={idx}>
-                <p>{outlet.name} - {outlet.location}</p>
+                <p>{outlet.name}</p>
               </div>
             ))}
           </div>
