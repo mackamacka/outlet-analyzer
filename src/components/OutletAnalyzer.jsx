@@ -23,7 +23,6 @@ const OutletAnalyzer = () => {
         'Cricket Viewing Rooms'
       ];
 
-      // Changed to collect all outlets in two main categories
       const combinedOutlets = {
         fbOutlets: [],
         corporate: []
@@ -45,10 +44,9 @@ const OutletAnalyzer = () => {
             
             const outletInfo = {
               name: row[0],
-              section: sheetName  // Keep track of original section if needed
+              section: sheetName
             };
 
-            // Sort into F&B or Corporate
             if (row[0].toLowerCase().startsWith('outlet') || 
                 row[0].toLowerCase().startsWith('bar')) {
               combinedOutlets.fbOutlets.push(outletInfo);
@@ -59,6 +57,10 @@ const OutletAnalyzer = () => {
         }
       });
 
+      // Sort both arrays alphabetically by name
+      combinedOutlets.fbOutlets.sort((a, b) => a.name.localeCompare(b.name));
+      combinedOutlets.corporate.sort((a, b) => a.name.localeCompare(b.name));
+
       setOutletData(combinedOutlets);
       setError('');
     } catch (err) {
@@ -66,7 +68,7 @@ const OutletAnalyzer = () => {
       setOutletData(null);
     }
   };
-
+  
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -107,7 +109,7 @@ const OutletAnalyzer = () => {
               fontWeight: 'bold'
             }}>F&B OUTLETS</h2>
             {outletData.fbOutlets.map((outlet, idx) => (
-              <div key={`fb-${idx}`}>
+              <div key={`fb-${idx}`} style={{ marginBottom: '5px' }}>
                 <p>{outlet.name}</p>
               </div>
             ))}
@@ -121,7 +123,7 @@ const OutletAnalyzer = () => {
               fontWeight: 'bold'
             }}>CORPORATE</h2>
             {outletData.corporate.map((outlet, idx) => (
-              <div key={`corp-${idx}`}>
+              <div key={`corp-${idx}`} style={{ marginBottom: '5px' }}>
                 <p>{outlet.name}</p>
               </div>
             ))}
