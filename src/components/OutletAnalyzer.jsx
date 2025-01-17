@@ -17,7 +17,6 @@ const OutletAnalyzer = () => {
         sheetStubs: true
       });
 
-      // List of outlets to exclude
       const excludedOutlets = [
         'Coffee Cart',
         'Concourse Food Van',
@@ -32,22 +31,33 @@ const OutletAnalyzer = () => {
         const worksheet = workbook.Sheets[sheetName];
         const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
 
-        const outlets = [];
+        const outlets = {
+          fbOutlets: [],
+          corporate: []
+        };
+
         for (let i = 5; i < jsonData.length; i++) {
           const row = jsonData[i];
-          // Check if outlet exists and BMS ON time is not 0:00:00
           if (row && row[0] && 
               row[0] !== 'OUTLET NAME' && 
-              row[2] && // BMS ON time
+              row[2] && 
               row[2] !== '0:00:00' &&
               !excludedOutlets.some(excluded => row[0].includes(excluded))) {
-            outlets.push({
+            
+            const outletInfo = {
               name: row[0]
-            });
+            };
+
+            // Check if name starts with "Outlet" and sort accordingly
+            if (row[0].toLowerCase().startsWith('outlet')) {
+              outlets.fbOutlets.push(outletInfo);
+            } else {
+              outlets.corporate.push(outletInfo);
+            }
           }
         }
 
-        if (outlets.length > 0) {
+        if (outlets.fbOutlets.length > 0 || outlets.corporate.length > 0) {
           outletsBySection[sheetName] = outlets;
         }
       });
@@ -98,11 +108,40 @@ const OutletAnalyzer = () => {
             gridRow: index >= 3 ? '2 / 3' : '1 / 2'
           }}>
             <h2>{section}</h2>
-            {outletData[section].map((outlet, idx) => (
-              <div key={idx}>
-                <p>{outlet.name}</p>
-              </div>
-            ))}
+            
+            {/* F&B Outlets Section */}
+            {outletData[section].fbOutlets.length > 0 && (
+              <>
+                <h3 style={{ 
+                  marginTop: '10px', 
+                  marginBottom: '5px',
+                  fontSize: '14px',
+                  fontWeight: 'bold' 
+                }}>F&B OUTLETS</h3>
+                {outletData[section].fbOutlets.map((outlet, idx) => (
+                  <div key={`fb-${idx}`}>
+                    <p>{outlet.name}</p>
+                  </div>
+                ))}
+              </>
+            )}
+
+            {/* Corporate Section */}
+            {outletData[section].corporate.length > 0 && (
+              <>
+                <h3 style={{ 
+                  marginTop: '10px', 
+                  marginBottom: '5px',
+                  fontSize: '14px',
+                  fontWeight: 'bold' 
+                }}>CORPORATE</h3>
+                {outletData[section].corporate.map((outlet, idx) => (
+                  <div key={`corp-${idx}`}>
+                    <p>{outlet.name}</p>
+                  </div>
+                ))}
+              </>
+            )}
           </div>
         ))}
       </div>
