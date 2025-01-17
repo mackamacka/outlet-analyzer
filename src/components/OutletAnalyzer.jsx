@@ -42,8 +42,16 @@ const OutletAnalyzer = () => {
               row[2] !== '0:00:00' &&
               !excludedOutlets.some(excluded => row[0].includes(excluded))) {
             
+            // Add suffixes for specific outlets
+            let outletName = row[0];
+            if (outletName === 'Bar - 83 - BAR 1-33') {
+              outletName += ' LEVEL 1 MCG EXPRESS BAR';
+            } else if (outletName === 'Outlet 14 - FOOD 2-36') {
+              outletName += ' LEVEL 2 MCG EXPRESS FOOD';
+            }
+
             const outletInfo = {
-              name: row[0],
+              name: outletName,
               section: sheetName
             };
 
@@ -68,7 +76,7 @@ const OutletAnalyzer = () => {
       setOutletData(null);
     }
   };
-  
+
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
