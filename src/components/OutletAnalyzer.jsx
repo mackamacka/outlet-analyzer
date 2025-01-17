@@ -6,69 +6,70 @@ const OutletAnalyzer = () => {
   const [outletData, setOutletData] = useState(null);
   const [error, setError] = useState('');
 
-  const processExcelFile = async (file) => {
-    try {
-      const data = await file.arrayBuffer();
-      const workbook = XLSX.read(data, {
-        cellStyles: true,
-        cellFormulas: true,
-        cellDates: true,
-        cellNF: true,
-        sheetStubs: true
-      });
+const processExcelFile = async (file) => {
+  try {
+    const data = await file.arrayBuffer();
+    const workbook = XLSX.read(data, {
+      cellStyles: true,
+      cellFormulas: true,
+      cellDates: true,
+      cellNF: true,
+      sheetStubs: true
+    });
 
-      const excludedOutlets = [
-        'Coffee Cart',
-        'Concourse Food Van',
-        'Cricket Viewing Rooms'
-      ];
+    const excludedOutlets = [
+      'Coffee Cart',
+      'Concourse Food Van',
+      'Cricket Viewing Rooms'
+    ];
 
-      const outletsBySection = {};
+    const outletsBySection = {};
 
-      workbook.SheetNames.forEach(sheetName => {
-        if (sheetName === 'Lookup Table') return;
+    workbook.SheetNames.forEach(sheetName => {
+      if (sheetName === 'Lookup Table') return;
 
-        const worksheet = workbook.Sheets[sheetName];
-        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
+      const worksheet = workbook.Sheets[sheetName];
+      const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
 
-        const outlets = {
-          fbOutlets: [],
-          corporate: []
-        };
+      const outlets = {
+        fbOutlets: [],
+        corporate: []
+      };
 
-        for (let i = 5; i < jsonData.length; i++) {
-          const row = jsonData[i];
-          if (row && row[0] && 
-              row[0] !== 'OUTLET NAME' && 
-              row[2] && 
-              row[2] !== '0:00:00' &&
-              !excludedOutlets.some(excluded => row[0].includes(excluded))) {
-            
-            const outletInfo = {
-              name: row[0]
-            };
+      for (let i = 5; i < jsonData.length; i++) {
+        const row = jsonData[i];
+        if (row && row[0] && 
+            row[0] !== 'OUTLET NAME' && 
+            row[2] && 
+            row[2] !== '0:00:00' &&
+            !excludedOutlets.some(excluded => row[0].includes(excluded))) {
+          
+          const outletInfo = {
+            name: row[0]
+          };
 
-            // Check if name starts with "Outlet" and sort accordingly
-            if (row[0].toLowerCase().startsWith('outlet')) {
-              outlets.fbOutlets.push(outletInfo);
-            } else {
-              outlets.corporate.push(outletInfo);
-            }
+          // Check if name starts with either "Outlet" or "BAR"
+          if (row[0].toLowerCase().startsWith('outlet') || 
+              row[0].toLowerCase().startsWith('bar')) {
+            outlets.fbOutlets.push(outletInfo);
+          } else {
+            outlets.corporate.push(outletInfo);
           }
         }
+      }
 
-        if (outlets.fbOutlets.length > 0 || outlets.corporate.length > 0) {
-          outletsBySection[sheetName] = outlets;
-        }
-      });
+      if (outlets.fbOutlets.length > 0 || outlets.corporate.length > 0) {
+        outletsBySection[sheetName] = outlets;
+      }
+    });
 
-      setOutletData(outletsBySection);
-      setError('');
-    } catch (err) {
-      setError('Error processing file: ' + err.message);
-      setOutletData(null);
-    }
-  };
+    setOutletData(outletsBySection);
+    setError('');
+  } catch (err) {
+    setError('Error processing file: ' + err.message);
+    setOutletData(null);
+  }
+};
 
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
